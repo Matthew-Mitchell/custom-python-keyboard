@@ -2,9 +2,45 @@ from PYKB import *
 import time
 
 class KeyboardMod(Keyboard):
-	# def __init__(self):
-	# 	self.name = "MMod"
-	# 	self.InActionTimeout = 10*1000
+	def __init__(self, keymap=(), verbose=True):
+	        self.keymap = keymap
+	        self.verbose = verbose
+	        self.profiles = {}
+	        self.pairs = ()
+	        self.pairs_handler = do_nothing
+	        self.pair_keys = set()
+	        self.macro_handler = do_nothing
+	        self.layer_mask = 1
+	        self.matrix = Matrix()
+	        self.backlight = Backlight()
+	        self.uid = microcontroller.cpu.uid * 2
+	        self.usb_status = 0
+	        self.tap_delay = 500
+	        self.fast_type_thresh = 200
+	        self.pair_delay = 10
+	        self.adv_timeout = None
+
+	        size = 4 + self.matrix.keys
+	        self.data = array.array("L", microcontroller.nvm[: size * 4])
+	        if self.data[0] != 0x424B5950:
+	            self.data[0] = 0x424B5950
+	            self.data[1] = 1
+	            for i in range(4, size):
+	                self.data[i] = 0
+	        self.ble_id = self.data[1]
+	        self.heatmap = memoryview(self.data)[4:]
+
+	        ble_hid = HIDService()
+	        self.battery = BatteryService()
+	        self.battery.level = battery_level()
+	        self.battery_update_time = time.time() + 360
+	        self.advertisement = ProvideServicesAdvertisement(ble_hid, self.battery)
+	        self.advertisement.appearance = 961
+	        self.ble = BLERadio()
+	        self.set_bt_id(self.ble_id)
+	        self.ble_hid = HID(ble_hid.devices)
+	        self.usb_hid = HID(usb_hid.devices)
+	        
 	def run(self):
 	        self.setup()
 	        log = self.log
