@@ -1,6 +1,5 @@
-
 from PYKB import *
-
+from keyboardMod import *
 
 keyboard = Keyboard()
 
@@ -21,8 +20,8 @@ keyboard.keymap = (
         ESC,   1,   2,   3,   4,   5,   6,   7,   8,   9,   0, '-', '=', BACKSPACE,
         TAB,   Q,   W,   E,   R,   T,   Y,   U,   I,   O,   P, '[', ']', '|',
         CAPS,  A,   S, L2D,   F,   G,   H,   J,   K,   L, SCC, '"',    ENTER,
-        LSFT4, Z,   X,   C,   V, L3B,   N,   M, ',', '.', '/',         RSFT4,
-        LCTRL, LGUI, LALT,          SPACE,            RALT, MENU,  L1, RCTRL
+        LSFT4, Z,   X,   C,   V, L3B,   N,   M, ',', '.', '/',   MODS_TAP(MODS(RSHIFT), UP),
+        LCTRL, LGUI, LALT,          SPACE,     RALT, MODS_TAP(MODS(RGUI), LEFT), LAYER_TAP(1, DOWN), MODS_TAP(MODS(RCTRL), RIGHT)
     ),
 
     # layer 1
@@ -82,3 +81,4 @@ keyboard.pairs = [{35, 36}, {20, 19}]
 keyboard.verbose = False
 
 keyboard.run()
+#print("Keyboard attributes: ", dir(keyboard))
