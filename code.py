@@ -1,7 +1,7 @@
 from PYKB import *
 from keyboardMod import *
 
-keyboard = Keyboard()
+keyboard = KeyboardMod()
 
 ___ = TRANSPARENT
 BOOT = BOOTLOADER
