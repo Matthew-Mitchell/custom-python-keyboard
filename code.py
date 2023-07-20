@@ -1,7 +1,8 @@
-from PYKB import *
+# from PYKB import *
+from keyboard import *
 from keyboardMod import *
 
-keyboard = KeyboardMod()
+keyboard = Keyboard()
 
 ___ = TRANSPARENT
 BOOT = BOOTLOADER
@@ -20,20 +21,22 @@ keyboard.keymap = (
         ESC,   1,   2,   3,   4,   5,   6,   7,   8,   9,   0, '-', '=', BACKSPACE,
         TAB,   Q,   W,   E,   R,   T,   Y,   U,   I,   O,   P, '[', ']', '|',
         CAPS,  A,   S, L2D,   F,   G,   H,   J,   K,   L, SCC, '"',    ENTER,
-        LSFT4, Z,   X,   C,   V, L3B,   N,   M, ',', '.', '/',   MODS_TAP(MODS(RSHIFT), UP),
+        LSFT4, Z,   X,   C,   V, L3B,   N,   M, ',', '.', SLASH,  RSHIFT,
         LCTRL, LGUI, LALT,          SPACE,     RALT, MODS_TAP(MODS(RGUI), LEFT), LAYER_TAP(1, DOWN), MODS_TAP(MODS(RCTRL), RIGHT)
-    ),
+     
+    )   
+    ,
 
-    # layer 1
+    # layer 1 Activated with FN (Think this is hardcoded?)
     (
         '`',  F1,  F2,  F3,  F4,  F5,  F6,  F7,  F8,  F9, F10, F11, F12, DEL,
-        ___, ___,  UP, ___, ___, ___, ___, ___, ___, ___,SUSPEND,___,___,___,
+        ___, ___,  UP, ___, ___, ___, ___, ___, ___, ___, SUSPEND, HOME, END,___,       
         ___,LEFT,DOWN,RIGHT,___, ___, ___, ___, ___, ___, ___, ___,      ___,
-        ___, ___, ___, ___, ___,BOOT, ___,MACRO(0), ___, ___, ___,       ___,
+        ___, ___, ___, ___, ___,BOOT, MACRO(0),MACRO(1), ___, INSERT, DELETE,    MODS_TAP(MODS(RSHIFT),  UP),
         ___, ___, ___,                ___,               ___, ___, ___,  ___
     ),
 
-    # layer 2
+    # layer 2 Activated with D; see above
     (
         '`',  F1,  F2,  F3,  F4,  F5,  F6,  F7,  F8,  F9, F10, F11, F12, DEL,
         ___, ___, ___, ___, ___, ___, ___,PGUP, ___, ___, ___,AUDIO_VOL_DOWN,AUDIO_VOL_UP,AUDIO_MUTE,
@@ -42,7 +45,7 @@ keyboard.keymap = (
         ___, ___, ___,                ___,               ___, ___, ___,  ___
     ),
 
-    # layer 3
+    # layer 3 Activated with B; see above
     (
         BT_TOGGLE,BT1,BT2, BT3,BT4,BT5,BT6,BT7, BT8, BT9, BT0, ___, ___, ___,
         ___, ___, ___, ___, ___, ___,___,USB_TOGGLE,___,___,___,___,___, ___,
@@ -61,12 +64,63 @@ keyboard.keymap = (
     ),
 )
 
+# ORIGINAL CODE
+# def macro_handler(dev, n, is_down):
+#     if is_down:
+#         dev.send_text('You pressed macro #{}\n'.format(n))
+#     else:
+#         dev.send_text('You released macro #{}\n'.format(n))
+
+#BACKLIGHT POSITIONS:
+# ESC(0)    1(1)   2(2)   3(3)   4(4)   5(5)   6(6)   7(7)   8(8)   9(9)   0(10)  -(11)  =(12)  BACKSPACE(13)
+# TAB(27)   Q(26)  W(25)  E(24)  R(23)  T(22)  Y(21)  U(20)  I(19)  O(18)  P(17)  [(16)  ](15)   \(14)
+# CAPS(28)  A(29)  S(30)  D(31)  F(32)  G(33)  H(34)  J(35)  K(36)  L(37)  ;(38)  "(39)      ENTER(40)
+#LSHIFT(52) Z(51)  X(50)  C(49)  V(48)  B(47)  N(46)  M(45)  ,(44)  .(43)  /(42)            RSHIFT(41)
+# LCTRL(53)  LGUI(54)  LALT(55)               SPACE(56)          RALT(57)  MENU(58)  Fn(59)  RCTRL(60)
+
+def macro0(dev, is_down):
+    # dev.send_text("macro 0 executed. is_down:{}".format(is_down))
+    if is_down:
+        #keylights += 1 #Toggle Keylights
+        # dev.send_text("down.")
+        dev.backlight.set_brightness(200)
+        for i in range(0,28):
+            dev.backlight.pixel(i, 0, 0, 0)
+        for i in range(29,61):
+            dev.backlight.pixel(i, 0, 0, 0)
+    else:
+        # dev.send_text("up.")
+        pass
+        #dev.backlight.pixel(9, 0, 0, 0) #white 0xff, 0xff, 0xff
+        #dev.backlight.set_brightness(0) #Turn OFF.
+    dev.backlight.update()
+
+def macro1(dev, is_down):
+    # dev.send_text("macro 0 executed. is_down:{}".format(is_down))
+    if is_down:
+        #keylights += 1 #Toggle Keylights
+        # dev.send_text("down.")
+        dev.backlight.set_brightness(200)
+        for i in range(0,28):
+            dev.backlight.pixel(i, 153, 0, 153)
+        for i in range(29,61):
+            dev.backlight.pixel(i, 153, 0, 153)
+    else:
+        # dev.send_text("up.")
+        pass
+        #dev.backlight.pixel(9, 0, 0, 0) #white 0xff, 0xff, 0xff
+        #dev.backlight.set_brightness(0) #Turn OFF.
+    dev.backlight.update()
 
 def macro_handler(dev, n, is_down):
-    if is_down:
-        dev.send_text('You pressed macro #{}\n'.format(n))
-    else:
-        dev.send_text('You released macro #{}\n'.format(n))
+    #dev.send_text('You just triggered MACRO #{}\n'.format(n))
+    #dev.send_text("n equals 0: {}".format(n==0))
+    #dev.send_text("keylights are currently: {}".format(keylights))
+    if n == 0:
+        #dev.send_text("{}".format(is_down))
+        macro0(dev, is_down)
+    if n== 1:
+        macro1(dev, is_down)
 
 def pairs_handler(dev, n):
     dev.send_text('You just triggered pair keys #{}\n'.format(n))
