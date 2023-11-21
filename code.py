@@ -1,6 +1,7 @@
 # from PYKB import *
 from keyboard import *
 from keyboardMod import *
+import time
 
 keyboard = Keyboard()
 
@@ -30,7 +31,7 @@ keyboard.keymap = (
     # layer 1 Activated with FN (Think this is hardcoded?)
     (
         '`',  F1,  F2,  F3,  F4,  F5,  F6,  F7,  F8,  F9, F10, F11, F12, DEL,
-        ___, ___,  UP, ___, ___, ___, ___, ___, ___, ___, SUSPEND, HOME, END,___,       
+        ___, ___,  UP, ___, ___, ___, ___, ___, ___, ___, MACRO(8), HOME, END,___,       
         ___,LEFT,DOWN,RIGHT,___, ___, ___, ___, ___, ___, ___, ___,      ___,
         ___, ___, ___, ___, ___,BOOT, MACRO(0),MACRO(1), ___, INSERT, DELETE,    MODS_TAP(MODS(RSHIFT),  UP),
         ___, ___, ___,                ___,               ___, ___, ___,  ___
@@ -78,49 +79,54 @@ keyboard.keymap = (
 #LSHIFT(52) Z(51)  X(50)  C(49)  V(48)  B(47)  N(46)  M(45)  ,(44)  .(43)  /(42)            RSHIFT(41)
 # LCTRL(53)  LGUI(54)  LALT(55)               SPACE(56)          RALT(57)  MENU(58)  Fn(59)  RCTRL(60)
 
-def macro0(dev, is_down):
-    # dev.send_text("macro 0 executed. is_down:{}".format(is_down))
+def set_color(dev, r, g, b):
+    for i in range(0,28):
+        dev.backlight.pixel(i, r, g, b)
+    for i in range(29,61):
+        dev.backlight.pixel(i, r, g, b)
+
+def color_macro(dev, is_down, r, g, b):
     if is_down:
-        #keylights += 1 #Toggle Keylights
-        # dev.send_text("down.")
+        set_color(dev, r,g,b)
         dev.backlight.set_brightness(200)
-        for i in range(0,28):
-            dev.backlight.pixel(i, 0, 0, 0)
-        for i in range(29,61):
-            dev.backlight.pixel(i, 0, 0, 0)
     else:
-        # dev.send_text("up.")
         pass
-        #dev.backlight.pixel(9, 0, 0, 0) #white 0xff, 0xff, 0xff
-        #dev.backlight.set_brightness(0) #Turn OFF.
     dev.backlight.update()
 
-def macro1(dev, is_down):
-    # dev.send_text("macro 0 executed. is_down:{}".format(is_down))
-    if is_down:
-        #keylights += 1 #Toggle Keylights
-        # dev.send_text("down.")
-        dev.backlight.set_brightness(200)
-        for i in range(0,28):
-            dev.backlight.pixel(i, 153, 0, 153)
-        for i in range(29,61):
-            dev.backlight.pixel(i, 153, 0, 153)
-    else:
-        # dev.send_text("up.")
-        pass
-        #dev.backlight.pixel(9, 0, 0, 0) #white 0xff, 0xff, 0xff
-        #dev.backlight.set_brightness(0) #Turn OFF.
-    dev.backlight.update()
+def lights_off(dev, is_down):
+    #Black; turn lights off
+    color_macro(dev, is_down, 0, 0, 0)
+
+def lights_purple(dev, is_down):
+    #Purple!!
+    color_macro(dev, is_down, 153,0,153)
+
+def pulse_lights(dev, is_down):
+    #WHILE THIS DOES PULSE THE LIGHTS, THE CONTINUOUS RUN LOCKS OUT ACTUAL KEYBOARD FUNCTION.
+    #PERHAPS WOULD WORK WITH THREADING...? POTENTIAL PERFORMANCE ISSUES WITH KEYBOARD RESPONSIVENESS...??
+    i = 200 #Starting Brightness
+    while True:
+        i = (i%255) + 1 #Continually Iterate w/ Modular Arithmetic applied
+        dev.backlight.set_brightness(i)
+        time.sleep(0.01) #Timing increments...currently linear / uniform
 
 def macro_handler(dev, n, is_down):
+    """Macros actually execute twice; once when key is pressed and again when released.
+    Differentiate with "is_down"
+    not sure why dev needs to be passed to function....
+    """
+    # DEBUGGING / EXPERIMENT LOGGING CODE:
     #dev.send_text('You just triggered MACRO #{}\n'.format(n))
     #dev.send_text("n equals 0: {}".format(n==0))
     #dev.send_text("keylights are currently: {}".format(keylights))
     if n == 0:
-        #dev.send_text("{}".format(is_down))
-        macro0(dev, is_down)
-    if n== 1:
-        macro1(dev, is_down)
+        lights_off(dev, is_down)
+    if n == 1:
+        lights_purple(dev, is_down) #Purple
+    if n == 8:
+        pass
+        #DOES NOT WORK...
+        #pulse_lights(dev, is_down)
 
 def pairs_handler(dev, n):
     dev.send_text('You just triggered pair keys #{}\n'.format(n))
